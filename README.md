@@ -1,7 +1,6 @@
 # Capstone HR & Global Payroll Analysis (SQL)
 
-![SQL Analysis](sql-header.png)
-
+![header overview](header-image.png)
 ---
 
 ## Executive Summary
@@ -91,15 +90,38 @@ This analysis answers the following business questions:
 
 ## Detailed Analysis
 
-### High-Paying Roles (CTE)
-Used a Common Table Expression to identify job titles with average salaries above $12,000.
+### Headcount Analysis
+![workforce distribution](workforce-distribution.png)
 
-```sql
-WITH JobSalaries AS (
-    SELECT job_id, AVG(salary) AS avg_salary
-    FROM employees
-    GROUP BY job_id
-)
-SELECT *
-FROM JobSalaries
-WHERE avg_salary > 12000;
+### Salary Analysis
+![(salary comparison](salary-comparison.png)
+
+### Salary Segmentation
+![salary bands for employees](salary-bands-for-employees.png)
+
+### Organizational Structure
+![country level analysis](country-level-analysis.png)
+
+### High Earners Analysis
+![high earners](high-earners.png)
+
+###  High-Paying Job Roles (CTE)
+![job role analysis](job-role-analysis.png)
+
+###  Payroll Distribution
+![salary growth trend](salary-growth-trend.png)
+
+###  Structural Gaps
+![workforce gaps](workforce-gaps.png)
+
+
+## Key SQL Techniques Used
+- INNER JOIN and LEFT JOIN
+- GROUP BY and Aggregations
+- Subqueries
+- Common Table Expressions (CTEs)
+- CASE statements for segmentation
+
+  ## Conclusion
+This project demonstrates how SQL can be used to transform relational HR data into actionable insights.
+By analyzing payroll distribution, workforce structure, and salary segmentation, the organization can improve hiring strategy, optimize payroll costs, and identify high-value talent for leadership development.
