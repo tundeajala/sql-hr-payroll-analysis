@@ -88,32 +88,124 @@ This analysis answers the following business questions:
 
 ---
 
-## Detailed Analysis
+## Detailed Analysis & Insights
 
-### Headcount Analysis
-![workforce distribution](workforce-distribution.png)
+### 1. Headcount by Department
+**Query:**
+```sql
 
-### Salary Analysis
-![(salary comparison](salary-comparison.png)
+SELECT 
+    d.department_name, 
+    COUNT(e.employee_id) AS headcount 
+FROM capstone.departments d 
+JOIN capstone.employees e 
+    ON d.department_id = e.department_id 
+GROUP BY d.department_name 
+ORDER BY headcount DESC;
 
-### Salary Segmentation
-![salary bands for employees](salary-bands-for-employees.png)
+#### Finding: 
+By joining the departments and employees tables, I discovered that certain departments (e.g., Executive or Sales) carry a significantly higher headcount than others.
+#### Analyst Insight:
+This suggests that the organization is heavily weighted toward specific operational areas, which may require a review of labor cost distribution.
 
-### Organizational Structure
-![country level analysis](country-level-analysis.png)
+### 2. Average Salary by Department
+SELECT 
+    d.department_name, 
+    ROUND(AVG(e.salary), 2) AS average_salary
+FROM capstone.departments d
+JOIN capstone.employees e 
+    ON d.department_id = e.department_id
+GROUP BY d.department_name
+ORDER BY average_salary DESC;
+#### Finding:
+Using a CASE statement, I categorized employees based on salary thresholds ($5k and $10k).
+#### Analyst Insight:
+Identifying the "High" band allows leadership to quickly see which percentage of the workforce accounts for the largest portion of the payroll budget.
 
-### High Earners Analysis
-![high earners](high-earners.png)
+### 3. Salary Segmentation
+SELECT 
+    CASE 
+        WHEN salary < 5000 THEN 'Low'
+        WHEN salary BETWEEN 5000 AND 10000 THEN 'Medium'
+        ELSE 'High'
+    END AS salary_band,
+    COUNT(*) AS employee_count
+FROM capstone.employees
+GROUP BY salary_band;
+#### Finding:
+Using a subquery, I filtered for individuals earning more than the global average salary.
+#### Analyst Insight:
+These individuals represent the company's "Top Talent" tier. This list is a primary resource for succession planning and leadership grooming.
+
+### 4. Departments per Country
+SELECT 
+    c.country_name, 
+    COUNT(d.department_id) AS department_count
+FROM capstone.countries c 
+LEFT JOIN capstone.departments d 
+    ON c.country_id = d.location_id 
+GROUP BY c.country_name;
+#### Finding:
+This uses a LEFT JOIN between the countries and departments tables.
+#### Analyst Insight:
+This measures our operational footprint. A country with zero departments is a "dormant" region where we have a legal presence but no active business units.
+
+### 5. Employees Above Average Salary
+SELECT 
+    emp_name, 
+    salary
+FROM capstone.employees
+WHERE salary > (
+    SELECT AVG(salary) 
+    FROM capstone.employees);
+#### Finding:
+I used a subquery to filter employees earning more than the company-wide mean.
+#### Analyst Insight:
+These are your "Premium Talent" assets. Monitoring this group is vital for retention, as they represent the most significant individual investments by the company.
 
 ###  High-Paying Job Roles (CTE)
-![job role analysis](job-role-analysis.png)
+WITH JobSalaries AS (
+    SELECT 
+        j.job_title, 
+        AVG(e.salary) AS avg_job_salary
+    FROM capstone.jobs j
+    JOIN capstone.employees e 
+        ON j.job_id = e.job_id
+    GROUP BY j.job_title
+)
+SELECT * 
+FROM JobSalaries 
+WHERE avg_job_salary > 12000;
+#### Finding:
+Using a Common Table Expression (CTE), I isolated roles with an average salary over $12,000.
+#### Analyst Insight:
+This isolates the "Elite Roles". It allows the business to see which specific job titles are driving the highest costs, regardless of which department they are in.
 
-###  Payroll Distribution
-![salary growth trend](salary-growth-trend.png)
+###  Payroll by Country
+SELECT 
+    c.country_name, 
+    SUM(e.salary) AS total_payroll
+FROM capstone.countries c
+JOIN capstone.employees e 
+    ON c.country_id = e.country_id 
+GROUP BY c.country_name
+ORDER BY total_payroll DESC;
+#### Finding:
+I aggregated the SUM of all salaries by geographic location.
+#### Analyst Insight:
+This is a crucial Finance metric. It identifies which countries are the most expensive to operate in, which is essential for determining the ROI of global expansion.
 
 ###  Structural Gaps
-![workforce gaps](workforce-gaps.png)
-
+SELECT 
+    j.job_title
+FROM capstone.jobs j
+LEFT JOIN capstone.employees e 
+    ON j.job_id = e.job_id
+WHERE e.employee_id IS NULL;
+#### Finding:
+I used a LEFT JOIN between jobs and employees to find titles with no associated staff.
+#### Analyst Insight:
+These are "Ghost Roles". This discovery forces management to decide: do we fill these positions, or do we delete them to simplify our corporate structure?
 
 ## Key SQL Techniques Used
 - INNER JOIN and LEFT JOIN
