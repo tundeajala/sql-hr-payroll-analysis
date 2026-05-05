@@ -1,6 +1,4 @@
 # Capstone HR & Global Payroll Analysis (SQL)
-
-![header overview](header-image.png)
 ---
 
 ## Executive Summary
